@@ -12,7 +12,7 @@ module.exports = {
       updated_at: { type: Sequelize.DATE, defaultValue: Sequelize.NOW },
     });
 
-    // Media table (must exist before projects references it)
+    // Media table
     await queryInterface.createTable('media', {
       id: { type: Sequelize.UUID, defaultValue: Sequelize.UUIDV4, primaryKey: true },
       filename: { type: Sequelize.STRING, allowNull: false },
