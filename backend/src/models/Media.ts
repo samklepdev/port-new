@@ -10,51 +10,52 @@ export class Media extends Model {
   declare sizeBytes: number;
   declare url: string;
   declare uploadedBy: string;
+  declare createdAt: Date;
+  declare updatedAt: Date;
 }
 
-Media.init({
-  id: {
-    type: DataTypes.UUID,
-    defaultValue: DataTypes.UUIDV4,
-    primaryKey: true,
-  },
-  filename: {
-    type: DataTypes.STRING,
-    allowNull: false,
-  },
-  originalName: {
-    type: DataTypes.STRING,
-    allowNull: false,
-  },
-  mimeType: {
-    type: DataTypes.STRING,
-    allowNull: false,
-  },
-  sizeBytes: {
-    type: DataTypes.INTEGER,
-    allowNull: false,
-  },
-  url: {
-    type: DataTypes.STRING,
-    allowNull: false,
-  },
-  uploadedBy: {
-    type: DataTypes.UUID,
-    allowNull: true,
-    references: {
-      model: User,
-      key: 'id',
+Media.init(
+  {
+    id: {
+      type: DataTypes.UUID,
+      defaultValue: DataTypes.UUIDV4,
+      primaryKey: true,
     },
-    onDelete: 'SET NULL',
+    filename: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+    originalName: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+    mimeType: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+    sizeBytes: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+    },
+    url: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+    uploadedBy: {
+      type: DataTypes.UUID,
+      allowNull: true,
+      references: { model: User, key: 'id' },
+      onDelete: 'SET NULL',
+    },
   },
-}, {
-  sequelize,
-  modelName: 'Media',
-  tableName: 'media',
-  underscored: true,
-});
+  {
+    sequelize,
+    modelName: 'Media',
+    tableName: 'media',
+    underscored: true,
+  }
+);
 
-// Association
 User.hasMany(Media, { foreignKey: 'uploadedBy' });
 Media.belongsTo(User, { foreignKey: 'uploadedBy' });
 
