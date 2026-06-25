@@ -1,42 +1,38 @@
 import 'dotenv/config';
 import express from 'express';
-import errorHandler from './middleware/errorHandler';
-import asyncHandler from './middleware/asyncHandler';
 import cors from 'cors';
+import path from 'path';
+import sequelize from './config/db';
+import errorHandler from './middleware/errorHandler';
+
+import './models/User';
+import './models/Media';
+import './models/Project'
 
 const app = express();
-const PORT = process.env.PORT || 33000;
+const PORT = process.env.PORT ?? 5000;
+
+app.use(cors({ origin: process.env.CLIENT_URL ?? 'http://localhost:5173' }));
 app.use(express.json());
-
-app.use(cors({
-  origin: 'http://localhost:5173',
-}));
-
-app.get('/api', (req, res) => {
-  res.send('Hello, World!');
-});
-
-app.get('/api/health', (_req, res) => {
-  res.json({ status: 'ok' });
-});
-
-app.get(
-  '/api/error',
-  asyncHandler(async (_req, _res) => {
-    throw new Error('Example async error');
-  })
-);
-
+app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
+ 
+app.use('/api/auth', authRouter);
+app.use('/api/projects', projectsRouter);
+app.use('/api/media', mediaRouter);
+ 
+app.get('/api/health', (_req, res) => res.json({ status: 'ok' }));
+ 
 app.use(errorHandler);
 
-process.on('unhandledRejection', (reason) => {
-  console.error('Unhandled Rejection:', reason);
-  process.exit(1);
-});
-
-process.on('uncaughtException', (err) => {
-  console.error('Uncaught Exception:', err);
-  process.exit(1);
-});
-
-app.listen(PORT, () => console.log(`Server is running on port ${PORT}`));
+const start = async () => {
+  try {
+    await sequelize.authenticate();
+    console.log('Database connected');
+    app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+  } catch (err) {
+    console.error('Failed to connect to database:', err);
+    process.exit(1);
+  }
+};
+ 
+start();
