@@ -8,6 +8,7 @@ import errorHandler from './middleware/errorHandler';
 import './models/User';
 import './models/Media';
 import './models/Project'
+import projectsRouter from './modules/projects/projects.router';
 
 const app = express();
 const PORT = process.env.PORT ?? 5000;
@@ -16,9 +17,10 @@ app.use(cors({ origin: process.env.CLIENT_URL ?? 'http://localhost:5173' }));
 app.use(express.json());
 app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
  
-app.use('/api/auth', authRouter);
+// TODO: add/import authRouter and mediaRouter when available
+// app.use('/api/auth', authRouter);
 app.use('/api/projects', projectsRouter);
-app.use('/api/media', mediaRouter);
+// app.use('/api/media', mediaRouter);
  
 app.get('/api/health', (_req, res) => res.json({ status: 'ok' }));
  
