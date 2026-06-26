@@ -1,6 +1,7 @@
 import { Router, Response, Request } from 'express';
 import { authenticate, requireRole } from '../../middleware/auth';
 import asyncHandler from '../../middleware/asyncHandler';
+import { validateRequest, optionalEnum, requiredString, requiredUuid } from '../../middleware/validate';
 import { AuthRequest } from '../../types/index';
 import * as service from './projects.service';
 
@@ -53,6 +54,14 @@ router.post(
   '/',
   authenticate,
   requireRole('admin', 'editor'),
+  validateRequest({
+    body: {
+      title: requiredString('title'),
+      excerpt: requiredString('excerpt'),
+      date: requiredString('date'),
+      status: optionalEnum('status', ['draft', 'published']),
+    },
+  }),
   asyncHandler(async (req: AuthRequest, res: Response) => {
     const project = await service.create(req.body);
     res.status(201).json(project);
@@ -72,6 +81,12 @@ router.put(
   '/:id',
   authenticate,
   requireRole('admin', 'editor'),
+  validateRequest({
+    params: { id: requiredUuid('id') },
+    body: {
+      status: optionalEnum('status', ['draft', 'published']),
+    },
+  }),
   asyncHandler(async (req: AuthRequest<{ id: string }>, res: Response) => {
     const project = await service.update(req.params.id, req.body);
     if (!project) {

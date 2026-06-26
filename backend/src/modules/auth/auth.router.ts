@@ -1,5 +1,6 @@
 import { Router, Request, Response } from 'express';
 import asyncHandler from '../../middleware/asyncHandler';
+import { validateRequest, requiredEmail, requiredString } from '../../middleware/validate';
 import * as service from './auth.service';
 
 const router = Router();
@@ -13,12 +14,14 @@ const router = Router();
  */
 router.post(
   '/register',
+  validateRequest({
+    body: {
+      email: requiredEmail('email'),
+      password: requiredString('password'),
+    },
+  }),
   asyncHandler(async (req: Request, res: Response) => {
     const { email, password } = req.body;
-    if (!email || !password) {
-      res.status(400).json({ error: 'Email and password are required' });
-      return;
-    }
     const token = await service.register(email, password);
     res.status(201).json({ token });
   })
@@ -33,12 +36,14 @@ router.post(
  */
 router.post(
   '/login',
+  validateRequest({
+    body: {
+      email: requiredEmail('email'),
+      password: requiredString('password'),
+    },
+  }),
   asyncHandler(async (req: Request, res: Response) => {
     const { email, password } = req.body;
-    if (!email || !password) {
-      res.status(400).json({ error: 'Email and password are required' });
-      return;
-    }
     const token = await service.login(email, password);
     res.json({ token });
   })
