@@ -2,6 +2,7 @@ import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import * as repo from './auth.repo';
 import { User } from '../../models/User';
+import { BadRequest, Unauthorized } from '../../errors/HttpError';
 
 const signToken = (user: User) =>
   jwt.sign(
@@ -18,7 +19,7 @@ const signToken = (user: User) =>
    */
 export const register = async (email: string, password: string) => {
   const existing = await repo.findByEmail(email);
-  if (existing) throw new Error('Email already in use');
+  if (existing) throw BadRequest('Email already in use');
 
   const passwordHash = await bcrypt.hash(password, 12);
   const user = await repo.createUser(email, passwordHash);
@@ -33,10 +34,10 @@ export const register = async (email: string, password: string) => {
  */
 export const login = async (email: string, password: string) => {
   const user = await repo.findByEmail(email);
-  if (!user) throw new Error('Invalid credentials');
+  if (!user) throw Unauthorized('Invalid credentials');
 
   const valid = await bcrypt.compare(password, user.passwordHash);
-  if (!valid) throw new Error('Invalid credentials');
+  if (!valid) throw Unauthorized('Invalid credentials');
 
   return signToken(user);
 };

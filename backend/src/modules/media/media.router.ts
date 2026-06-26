@@ -23,10 +23,12 @@ router.get(
 );
 
 /**
- * GET /api/media/:id
- * Retrieves a specific media item by its ID.
- * Requires authentication.
- * Returns the media object if found, or a 404 error if not found.
+ * POST /api/media
+  * Uploads a new media file.
+  * Requires authentication.
+  * Expects a multipart/form-data request with a file field named 'file'.
+  * Returns the newly created media object, including the uploader's id and email.
+  * If no file is uploaded, returns a 400 error.
  */
 router.post(
   '/',
