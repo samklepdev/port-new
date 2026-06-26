@@ -1,9 +1,20 @@
-import { RequestHandler } from 'express';
+import type { Request, Response, NextFunction, RequestHandler } from 'express';
 
-export const asyncHandler = <P = any, ResBody = any, ReqBody = any, ReqQuery = any>(
-  fn: RequestHandler<P, ResBody, ReqBody, ReqQuery>
-): RequestHandler<P, ResBody, ReqBody, ReqQuery> => (req, res, next) => {
-  Promise.resolve(fn(req, res, next)).catch(next);
+export const asyncHandler = <
+  P = Record<string, any>,
+  ResBody = any,
+  ReqBody = any,
+  ReqQuery = any
+>(
+  fn: (
+    req: Request<P, ResBody, ReqBody, ReqQuery>,
+    res: Response<ResBody>,
+    next: NextFunction
+  ) => Promise<void> | void
+): RequestHandler<P, ResBody, ReqBody, ReqQuery> => {
+  return (req, res, next) => {
+    Promise.resolve(fn(req, res, next)).catch(next);
+  };
 };
 
 export default asyncHandler;
