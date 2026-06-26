@@ -1,7 +1,7 @@
 import { Router, Response, Request } from 'express';
 import { authenticate, requireRole } from '../../middleware/auth';
 import asyncHandler from '../../middleware/asyncHandler';
-import { AuthRequest } from '../../types';
+import { AuthRequest } from '../../types/index';
 import * as service from './projects.service';
 
 const router = Router();
@@ -72,7 +72,7 @@ router.put(
   '/:id',
   authenticate,
   requireRole('admin', 'editor'),
-  asyncHandler(async (req: AuthRequest, res: Response) => {
+  asyncHandler(async (req: AuthRequest<{ id: string }>, res: Response) => {
     const project = await service.update(req.params.id, req.body);
     if (!project) {
       res.status(404).json({ error: 'Project not found' });
@@ -93,7 +93,7 @@ router.delete(
   '/:id',
   authenticate,
   requireRole('admin'),
-  asyncHandler(async (req: AuthRequest, res: Response) => {
+  asyncHandler(async (req: AuthRequest<{ id: string }>, res: Response) => {
     await service.remove(req.params.id);
     res.status(204).send();
   })

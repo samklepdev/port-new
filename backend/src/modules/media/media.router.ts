@@ -2,7 +2,7 @@ import { Router, Response } from 'express';
 import { authenticate, requireRole } from '../../middleware/auth';
 import asyncHandler from '../../middleware/asyncHandler';
 import { upload } from '../../middleware/upload';
-import { AuthRequest } from '../../../types';
+import { AuthRequest } from '../../types/index';
 import * as repo from './media.repo';
 
 const router = Router();
@@ -61,7 +61,7 @@ router.delete(
   '/:id',
   authenticate,
   requireRole('admin'),
-  asyncHandler(async (req, res) => {
+  asyncHandler(async (req: AuthRequest<{ id: string }>, res) => {
     const deleted = await repo.remove(req.params.id);
     if (!deleted) {
       res.status(404).json({ error: 'Media not found' });

@@ -1,13 +1,15 @@
 import * as repo from './projects.repo';
 import { Project } from '../../models/Project';
-import { MEDIA_FK_FIELDS } from '../../utils/projects';
 
-const slugify = (title: string) =>
-  title
+const slugify = (title: string | null | undefined) => {
+  if (!title) return '';
+
+  return title
     .toLowerCase()
     .trim()
     .replace(/[^a-z0-9\s-]/g, '')
     .replace(/\s+/g, '-');
+};
 
 const MEDIA_FK_FIELDS = [
   'imageId', 'image2Id', 'techTabImgId', 'designTabImgId',
