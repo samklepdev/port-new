@@ -4,10 +4,18 @@ import * as repo from './auth.repo';
 import { User } from '../../models/User';
 import { BadRequest, Unauthorized } from '../../errors/HttpError';
 
+const getJwtSecret = (): string => {
+  const secret = process.env.JWT_SECRET;
+  if (!secret) {
+    throw new Error('JWT_SECRET must be defined in environment variables');
+  }
+  return secret;
+};
+
 const signToken = (user: User) =>
   jwt.sign(
     { id: user.id, email: user.email, role: user.role },
-    process.env.JWT_SECRET!,  
+    getJwtSecret(),
     { expiresIn: '7d' }
   );
 

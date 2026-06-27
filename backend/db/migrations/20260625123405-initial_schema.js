@@ -1,93 +1,84 @@
 'use strict';
 
-module.exports = {
-  up: async (queryInterface, Sequelize) => {
-    // Users table
-    await queryInterface.createTable('users', {
-      id: { type: Sequelize.UUID, defaultValue: Sequelize.UUIDV4, primaryKey: true },
-      email: { type: Sequelize.STRING, unique: true, allowNull: false },
-      password_hash: { type: Sequelize.STRING, allowNull: false },
-      role: { type: Sequelize.ENUM('admin', 'editor'), defaultValue: 'editor', allowNull: false },
-      created_at: { type: Sequelize.DATE, defaultValue: Sequelize.NOW },
-      updated_at: { type: Sequelize.DATE, defaultValue: Sequelize.NOW },
-    });
+exports.up = async (pgm) => {
+  pgm.createExtension('uuid-ossp', { ifNotExists: true });
 
-    // Media table
-    await queryInterface.createTable('media', {
-      id: { type: Sequelize.UUID, defaultValue: Sequelize.UUIDV4, primaryKey: true },
-      filename: { type: Sequelize.STRING, allowNull: false },
-      original_name: { type: Sequelize.STRING, allowNull: false },
-      mime_type: { type: Sequelize.STRING, allowNull: false },
-      size_bytes: { type: Sequelize.INTEGER, allowNull: false },
-      url: { type: Sequelize.STRING, allowNull: false },
-      uploaded_by: {
-        type: Sequelize.UUID,
-        allowNull: true,
-        references: { model: 'users', key: 'id' },
-        onDelete: 'SET NULL',
-      },
-      created_at: { type: Sequelize.DATE, defaultValue: Sequelize.NOW },
-      updated_at: { type: Sequelize.DATE, defaultValue: Sequelize.NOW },
-    });
+  pgm.createType('enum_users_role', ['admin', 'editor']);
 
-    const fk = {
-      type: Sequelize.UUID,
-      allowNull: true,
-      references: { model: 'media', key: 'id' },
+  pgm.createTable('users', {
+    id: { type: 'uuid', primaryKey: true, default: pgm.func('uuid_generate_v4()') },
+    email: { type: 'varchar(255)', notNull: true, unique: true },
+    password_hash: { type: 'text', notNull: true },
+    role: { type: 'enum_users_role', notNull: true, default: 'editor' },
+    created_at: { type: 'timestamp', notNull: true, default: pgm.func('current_timestamp') },
+    updated_at: { type: 'timestamp', notNull: true, default: pgm.func('current_timestamp') },
+  });
+
+  pgm.createTable('media', {
+    id: { type: 'uuid', primaryKey: true, default: pgm.func('uuid_generate_v4()') },
+    filename: { type: 'text', notNull: true },
+    original_name: { type: 'text', notNull: true },
+    mime_type: { type: 'text', notNull: true },
+    size_bytes: { type: 'integer', notNull: true },
+    url: { type: 'text', notNull: true },
+    uploaded_by: {
+      type: 'uuid',
+      references: 'users(id)',
       onDelete: 'SET NULL',
-    };
+    },
+    created_at: { type: 'timestamp', notNull: true, default: pgm.func('current_timestamp') },
+    updated_at: { type: 'timestamp', notNull: true, default: pgm.func('current_timestamp') },
+  });
 
-    // Projects table
-    await queryInterface.createTable('projects', {
-      id: { type: Sequelize.UUID, defaultValue: Sequelize.UUIDV4, primaryKey: true },
-      title: { type: Sequelize.STRING, allowNull: false },
-      slug: { type: Sequelize.STRING, unique: true, allowNull: false },
-      date: { type: Sequelize.STRING, allowNull: false },
-      excerpt: { type: Sequelize.TEXT, allowNull: false },
-      body: { type: Sequelize.TEXT, allowNull: true },
-      category: { type: Sequelize.STRING, allowNull: true },
-      link: { type: Sequelize.STRING, allowNull: true },
-      status: { type: Sequelize.ENUM('draft', 'published'), defaultValue: 'draft', allowNull: false },
+  pgm.createType('enum_projects_status', ['draft', 'published']);
 
-      // Image FKs
-      image_id: fk,
-      image_2_id: fk,
-      tech_tab_img_id: fk,
-      design_tab_img_id: fk,
+  const fk = {
+    type: 'uuid',
+    references: 'media(id)',
+    onDelete: 'SET NULL',
+  };
 
-      // Tab content
-      tech_tab_img_alt: { type: Sequelize.STRING, allowNull: true },
-      tech_description: { type: Sequelize.TEXT, allowNull: true },
-      design_tab_img_alt: { type: Sequelize.STRING, allowNull: true },
-      design_description: { type: Sequelize.TEXT, allowNull: true },
+  pgm.createTable('projects', {
+    id: { type: 'uuid', primaryKey: true, default: pgm.func('uuid_generate_v4()') },
+    title: { type: 'text', notNull: true },
+    slug: { type: 'varchar(255)', notNull: true, unique: true },
+    date: { type: 'text', notNull: true },
+    excerpt: { type: 'text', notNull: true },
+    body: { type: 'text' },
+    category: { type: 'text' },
+    link: { type: 'text' },
+    status: { type: 'enum_projects_status', notNull: true, default: 'draft' },
+    image_id: fk,
+    image_2_id: fk,
+    tech_tab_img_id: fk,
+    design_tab_img_id: fk,
+    tech_tab_img_alt: { type: 'text' },
+    tech_description: { type: 'text' },
+    design_tab_img_alt: { type: 'text' },
+    design_description: { type: 'text' },
+    tech_1_id: fk,
+    tech_1_name: { type: 'text' },
+    tech_2_id: fk,
+    tech_2_name: { type: 'text' },
+    tech_3_id: fk,
+    tech_3_name: { type: 'text' },
+    tech_4_id: fk,
+    tech_4_name: { type: 'text' },
+    tech_5_id: fk,
+    tech_5_name: { type: 'text' },
+    base_color: { type: 'text' },
+    base_text_color: { type: 'text' },
+    tailwind_color: { type: 'text' },
+    created_at: { type: 'timestamp', notNull: true, default: pgm.func('current_timestamp') },
+    updated_at: { type: 'timestamp', notNull: true, default: pgm.func('current_timestamp') },
+  });
+};
 
-      // Tech stack icon FKs + name strings
-      tech_1_id: fk,
-      tech_1_name: { type: Sequelize.STRING, allowNull: true },
-      tech_2_id: fk,
-      tech_2_name: { type: Sequelize.STRING, allowNull: true },
-      tech_3_id: fk,
-      tech_3_name: { type: Sequelize.STRING, allowNull: true },
-      tech_4_id: fk,
-      tech_4_name: { type: Sequelize.STRING, allowNull: true },
-      tech_5_id: fk,
-      tech_5_name: { type: Sequelize.STRING, allowNull: true },
-
-      // Theming
-      base_color: { type: Sequelize.STRING, allowNull: true },
-      base_text_color: { type: Sequelize.STRING, allowNull: true },
-      tailwind_color: { type: Sequelize.STRING, allowNull: true },
-
-      created_at: { type: Sequelize.DATE, defaultValue: Sequelize.NOW },
-      updated_at: { type: Sequelize.DATE, defaultValue: Sequelize.NOW },
-    });
-  },
-
-  down: async (queryInterface) => {
-    await queryInterface.dropTable('projects');
-    await queryInterface.dropTable('media');
-    await queryInterface.dropTable('users');
-    await queryInterface.sequelize.query('DROP TYPE IF EXISTS "enum_users_role"');
-    await queryInterface.sequelize.query('DROP TYPE IF EXISTS "enum_projects_status"');
-  },
+exports.down = async (pgm) => {
+  pgm.dropTable('projects');
+  pgm.dropTable('media');
+  pgm.dropTable('users');
+  pgm.dropType('enum_projects_status');
+  pgm.dropType('enum_users_role');
+  pgm.dropExtension('uuid-ossp');
 };

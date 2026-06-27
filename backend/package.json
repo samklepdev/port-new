@@ -4,9 +4,9 @@
   "main": "dist/index.js",
   "scripts": {
     "dev": "ts-node-dev --respawn src/index.ts",
-    "migrate:up": "node-pg-migrate up",
-    "migrate:down": "node-pg-migrate down",
-    "migrate:create": "node-pg-migrate create",
+    "migrate:up": "node-pg-migrate up -m db/migrations",
+    "migrate:down": "node-pg-migrate down -m db/migrations",
+    "migrate:create": "node-pg-migrate create -m db/migrations",
     "seed:admin": "tsx ./src/db/seed.ts",
     "test": "tsx ./src/tests/run-all-tests.ts",
     "build": "tsc",
